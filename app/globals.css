@@ -1,0 +1,192 @@
+@import 'tailwindcss';
+@import 'tw-animate-css';
+
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  --background: oklch(0.98 0.012 180);
+  --foreground: oklch(0.24 0.03 220);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.24 0.03 220);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.24 0.03 220);
+  --primary: oklch(0.58 0.12 190);
+  --primary-foreground: oklch(0.99 0.005 190);
+  --secondary: oklch(0.95 0.02 190);
+  --secondary-foreground: oklch(0.34 0.05 210);
+  --muted: oklch(0.955 0.012 190);
+  --muted-foreground: oklch(0.52 0.03 215);
+  --accent: oklch(0.7 0.17 32);
+  --accent-foreground: oklch(0.99 0.01 40);
+  --destructive: oklch(0.6 0.22 25);
+  --destructive-foreground: oklch(0.99 0.01 25);
+  --border: oklch(0.9 0.015 195);
+  --input: oklch(0.9 0.015 195);
+  --ring: oklch(0.58 0.12 190);
+  --radius: 1rem;
+
+  --dm-teal: oklch(0.58 0.12 190);
+  --dm-teal-soft: oklch(0.94 0.04 190);
+  --dm-teal-deep: oklch(0.42 0.09 200);
+  --dm-coral: oklch(0.7 0.17 32);
+  --dm-coral-soft: oklch(0.95 0.05 40);
+  --dm-gold: oklch(0.8 0.14 85);
+  --dm-gold-soft: oklch(0.96 0.06 88);
+  --dm-gold-deep: oklch(0.62 0.13 80);
+  --dm-blue: oklch(0.6 0.13 245);
+  --dm-blue-soft: oklch(0.95 0.04 245);
+  --dm-green: oklch(0.62 0.14 150);
+  --dm-green-soft: oklch(0.95 0.05 150);
+  --dm-pink: oklch(0.68 0.16 350);
+  --dm-pink-soft: oklch(0.96 0.04 350);
+  --dm-amber: oklch(0.78 0.15 65);
+  --dm-amber-soft: oklch(0.96 0.06 68);
+  --dm-purple: oklch(0.6 0.14 300);
+  --dm-purple-soft: oklch(0.96 0.04 300);
+  --dm-success: oklch(0.62 0.14 150);
+  --dm-success-soft: oklch(0.95 0.05 150);
+  --dm-danger: oklch(0.6 0.22 25);
+  --dm-danger-soft: oklch(0.96 0.04 28);
+}
+
+@theme inline {
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+
+  --color-dm-teal: var(--dm-teal);
+  --color-dm-teal-soft: var(--dm-teal-soft);
+  --color-dm-teal-deep: var(--dm-teal-deep);
+  --color-dm-coral: var(--dm-coral);
+  --color-dm-coral-soft: var(--dm-coral-soft);
+  --color-dm-gold: var(--dm-gold);
+  --color-dm-gold-soft: var(--dm-gold-soft);
+  --color-dm-gold-deep: var(--dm-gold-deep);
+  --color-dm-blue: var(--dm-blue);
+  --color-dm-blue-soft: var(--dm-blue-soft);
+  --color-dm-green: var(--dm-green);
+  --color-dm-green-soft: var(--dm-green-soft);
+  --color-dm-pink: var(--dm-pink);
+  --color-dm-pink-soft: var(--dm-pink-soft);
+  --color-dm-amber: var(--dm-amber);
+  --color-dm-amber-soft: var(--dm-amber-soft);
+  --color-dm-purple: var(--dm-purple);
+  --color-dm-purple-soft: var(--dm-purple-soft);
+  --color-dm-success: var(--dm-success);
+  --color-dm-success-soft: var(--dm-success-soft);
+  --color-dm-danger: var(--dm-danger);
+  --color-dm-danger-soft: var(--dm-danger-soft);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+@keyframes dm-fade-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes dm-fade-up { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes dm-slide-up { from { transform: translateY(100%); } to { transform: translateY(0); } }
+@keyframes dm-pop { 0% { transform: scale(0.9); opacity: 0; } 60% { transform: scale(1.03); } 100% { transform: scale(1); opacity: 1; } }
+@keyframes dm-spin { to { transform: rotate(360deg); } }
+@keyframes dm-toast-in { from { opacity: 0; transform: translateY(-14px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes dm-check { from { stroke-dashoffset: 26; } to { stroke-dashoffset: 0; } }
+
+.dm-fade-in { animation: dm-fade-in 0.3s ease both; }
+.dm-fade-up { animation: dm-fade-up 0.4s ease both; }
+.dm-slide-up { animation: dm-slide-up 0.32s cubic-bezier(0.22,1,0.36,1) both; }
+.dm-pop { animation: dm-pop 0.32s cubic-bezier(0.22,1,0.36,1) both; }
+.dm-spin { animation: dm-spin 0.8s linear infinite; }
+.dm-toast-in { animation: dm-toast-in 0.28s ease both; }
+.dm-check { stroke-dasharray: 26; animation: dm-check 0.5s ease 0.15s both; }
+
+.dm-press { transition: transform 0.12s ease; }
+.dm-press:active { transform: scale(0.96); }
+.dm-nums { font-variant-numeric: tabular-nums; }
+.dm-clamp-1 { display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; }
+.dm-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.dm-clamp-3 { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.dm-no-scrollbar::-webkit-scrollbar { display: none; }
+.dm-no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+.dm-safe-top { padding-top: env(safe-area-inset-top); }
+.dm-safe-bottom { padding-bottom: env(safe-area-inset-bottom); }
+.dm-hero-gradient { background: linear-gradient(135deg, oklch(0.58 0.12 190), oklch(0.5 0.11 210)); }
+
+/* Leaflet overrides */
+.leaflet-container { font-family: inherit; background: var(--dm-teal-soft); }
+.leaflet-control-attribution { font-size: 9px; }
+.dm-map-pin { display: flex; align-items: center; justify-content: center; }
+
+/* RTL/LTR Support */
+html {
+  scroll-behavior: smooth;
+}
+
+html.rtl {
+  direction: rtl;
+  text-align: right;
+}
+
+html.ltr {
+  direction: ltr;
+  text-align: left;
+}
+
+/* Ensure logical properties work well with RTL */
+html[dir="rtl"] {
+  --transform-flip: -1;
+}
+
+html[dir="ltr"] {
+  --transform-flip: 1;
+}
+
+/* Flexbox fixes for RTL */
+html.rtl button:has(svg) {
+  flex-direction: row-reverse;
+}
+
+html.rtl nav {
+  flex-direction: row-reverse;
+}
+
+/* Link arrow direction */
+html.rtl a::before {
+  transform: scaleX(-1);
+}
+
+/* Input placeholder alignment */
+html.rtl input::placeholder,
+html.rtl textarea::placeholder {
+  text-align: right;
+}
+
+/* Language transition */
+html {
+  transition: direction 0.2s ease;
+}
