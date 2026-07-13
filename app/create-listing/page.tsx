@@ -515,9 +515,10 @@ export default function CreateListingPage() {
 
       {/* Footer */}
       <footer className="border-t border-border py-8 px-4 mt-12">
-        <div className="max-w-6xl mx-auto text-center text-sm text-muted-foreground">
-          <p>© 2024 Tunisia Pi Market. Built for the Pi Network community.</p>
-        </div>
+  <div className="max-w-6xl mx-auto text-center text-sm text-muted-foreground">
+    <p>© 2024 Tunisia Pi Market. Built for the Pi Network community.</p>
+  </div>
+</footer>
       </footer>
     </main>
   );
