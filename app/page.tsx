@@ -2,9 +2,6 @@
 
 import Link from 'next/link';
 import { useLanguage } from '@/contexts/language-context';
-import { SuggestedApps } from '@/components/suggested-apps';
-import { PromotionalBanner } from '@/components/promotional-banner';
-import { PromoteAdButton } from '@/components/promote-ad-button';
 import type { Language } from '@/lib/translations';
 
 export default function HomePage() {
@@ -51,23 +48,30 @@ export default function HomePage() {
         </div>
       </header>
 
-      {/* Promotional Banner with Carousel */}
-      <PromotionalBanner />
-
-      {/* Promote Ad Button */}
-      <section className="py-8 px-4 bg-gray-50 dark:bg-gray-900">
-        <div className="max-w-6xl mx-auto">
-          <PromoteAdButton />
+      {/* Hero */}
+      <section className="py-20 px-4">
+        <div className="max-w-4xl mx-auto text-center space-y-6">
+          <h2 className="text-5xl md:text-6xl font-bold tracking-tight">
+            {t('hero.title')}
+          </h2>
+          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+            {t('hero.subtitle')}
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
+            <Link href="/browse" className="px-8 py-3 bg-primary text-primary-foreground rounded-lg font-semibold hover:opacity-90 transition inline-block text-center">
+              {t('hero.browse')}
+            </Link>
+            <Link href="/create-listing" className="px-8 py-3 border border-border rounded-lg font-semibold hover:bg-secondary transition inline-block text-center">
+              {t('hero.create')}
+            </Link>
+          </div>
         </div>
       </section>
 
-      {/* Features - Enhanced with spacing and shadows */}
-      <section className="py-24 px-4">
+      {/* Features */}
+      <section className="py-16 px-4 bg-secondary">
         <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-16">
-            <h3 className="text-3xl md:text-4xl font-bold">{t('features.title')}</h3>
-            <div className="w-12 h-1 bg-primary rounded-full mx-auto mt-4"></div>
-          </div>
+          <h3 className="text-3xl font-bold text-center mb-12">{t('features.title')}</h3>
           <div className="grid md:grid-cols-3 gap-8">
             {[
               {
@@ -83,26 +87,23 @@ export default function HomePage() {
                 description: t('features.escrow.desc')
               }
             ].map((feature, i) => (
-              <div key={i} className="p-6 border border-border rounded-2xl hover:shadow-lg hover:border-primary transition-all bg-background">
-                <div className="w-14 h-14 rounded-xl bg-primary/15 flex items-center justify-center mb-4">
-                  <div className="w-7 h-7 rounded-lg bg-primary" />
+              <div key={i} className="space-y-3">
+                <div className="w-12 h-12 rounded-lg bg-primary/20 flex items-center justify-center">
+                  <div className="w-6 h-6 rounded bg-primary" />
                 </div>
-                <h4 className="font-bold text-lg mb-2">{feature.title}</h4>
-                <p className="text-muted-foreground leading-relaxed">{feature.description}</p>
+                <h4 className="font-semibold text-lg">{feature.title}</h4>
+                <p className="text-muted-foreground">{feature.description}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Categories - Modern with shadows and bold typography */}
-      <section className="py-24 px-4 bg-secondary/30">
+      {/* Categories */}
+      <section className="py-16 px-4">
         <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-16">
-            <h3 className="text-3xl md:text-4xl font-bold">{t('categories.title')}</h3>
-            <div className="w-12 h-1 bg-primary rounded-full mx-auto mt-4"></div>
-          </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+          <h3 className="text-3xl font-bold text-center mb-12">{t('categories.title')}</h3>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {[
               t('categories.electronics'),
               t('categories.fashion'),
@@ -115,7 +116,7 @@ export default function HomePage() {
             ].map((cat, i) => (
               <button
                 key={i}
-                className="p-6 bg-background border border-border rounded-2xl hover:border-primary hover:shadow-md hover:bg-primary/5 transition-all duration-200 text-center font-bold text-sm md:text-base"
+                className="p-6 border border-border rounded-lg hover:border-primary hover:bg-secondary transition text-center font-medium"
               >
                 {cat}
               </button>
@@ -124,26 +125,21 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* CTA - Modern Premium Style */}
-      <section className="py-24 px-4 bg-gradient-to-br from-primary via-primary to-primary/90 text-primary-foreground">
-        <div className="max-w-3xl mx-auto text-center space-y-8">
-          <div>
-            <h3 className="text-4xl md:text-5xl font-bold mb-4">{t('cta.title')}</h3>
-            <p className="text-lg md:text-xl opacity-95 leading-relaxed">
-              {t('cta.subtitle')}
-            </p>
-          </div>
-          <button className="px-8 py-3 bg-primary-foreground text-primary rounded-xl font-bold hover:opacity-90 transition-all shadow-lg hover:shadow-xl">
+      {/* CTA */}
+      <section className="py-20 px-4 bg-primary text-primary-foreground">
+        <div className="max-w-2xl mx-auto text-center space-y-6">
+          <h3 className="text-4xl font-bold">{t('cta.title')}</h3>
+          <p className="text-lg opacity-90">
+            {t('cta.subtitle')}
+          </p>
+          <button className="px-8 py-3 bg-primary-foreground text-primary rounded-lg font-semibold hover:opacity-90 transition">
             {t('cta.launch')}
           </button>
         </div>
       </section>
 
-      {/* Suggested Apps */}
-      <SuggestedApps />
-
       {/* Footer */}
-      <footer className="border-t border-border py-12 px-4 bg-background">
+      <footer className="border-t border-border py-8 px-4">
         <div className="max-w-6xl mx-auto text-center text-sm text-muted-foreground">
           <p>© 2024 Tunisia Pi Market. Built for the Pi Network community.</p>
         </div>
