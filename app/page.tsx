@@ -141,8 +141,13 @@ export default function HomePage() {
       {/* Footer */}
       <footer className="border-t border-border py-8 px-4">
         <div className="max-w-6xl mx-auto text-center text-sm text-muted-foreground">
-          <p>© 2024 Tunisia Pi Market. Built for the Pi Network community.</p>
-        </div>
+          {/* Footer */}
+<footer className="border-t border-border py-8 px-4">
+  <div className="max-w-6xl mx-auto text-center text-sm text-muted-foreground">
+    <p>© 2024 Tunisia Pi Market. Built for the Pi Network community.</p>
+  </div>
+</footer>
+</main>
       </footer>
     </main>
   );
