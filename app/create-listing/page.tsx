@@ -5,7 +5,7 @@ import { useState } from 'react';
 import { useLanguage } from '@/contexts/language-context';
 import { usePiAuth } from '@/contexts/pi-auth-context';
 import { PremiumAdButton } from '@/components/premium-ad-button';
-import { saveListing, initializeListingsCache } from '@/lib/listings-storage';
+import { saveListing } from '@/lib/listings-storage';
 import type { Language } from '@/lib/translations';
 
 const LOCATIONS = [
@@ -71,10 +71,9 @@ const CATEGORIES = [
 
 export default function CreateListingPage() {
   const { language, setLanguage, t, dir } = useLanguage();
-  const { sdk, isSdkReady, waitForSdk } = usePiAuth();
+  const { sdk, userId } = usePiAuth();
   const [saveError, setSaveError] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
-  const [isWaitingForSdk, setIsWaitingForSdk] = useState(false);
   const [formData, setFormData] = useState({
     title: '',
     price: '',
@@ -83,8 +82,6 @@ export default function CreateListingPage() {
     description: '',
     whatsapp: '',
     buyerMessage: '',
-    openPayWallet: '',
-    piNetworkWallet: '',
   });
 
   const [imageFiles, setImageFiles] = useState<File[]>([]);
@@ -138,6 +135,11 @@ export default function CreateListingPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    if (!sdk || !userId) {
+      setSaveError('SDK not ready. Please try again.');
+      return;
+    }
+
     setIsSaving(true);
     setSaveError(null);
 
@@ -148,13 +150,8 @@ export default function CreateListingPage() {
         name: imageFiles[index]?.name || `image-${index}`,
       }));
 
-      // Generate a user ID (works with or without SDK)
-      const userId = `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-
-      console.log('[v0] Saving listing instantly, userId:', userId);
-
-      // Save listing SYNCHRONOUSLY to in-memory cache (instant, no timeout)
-      saveListing(sdk, {
+      // Save listing to storage
+      await saveListing(sdk, {
         title: formData.title,
         description: formData.description,
         price: parseFloat(formData.price) || 0,
@@ -162,17 +159,14 @@ export default function CreateListingPage() {
         category: formData.category,
         whatsapp: formData.whatsapp,
         buyerMessage: formData.buyerMessage,
-        openPayWallet: formData.openPayWallet,
-        piNetworkWallet: formData.piNetworkWallet,
         images,
       }, userId);
 
-      console.log('[v0] Listing saved successfully to local cache');
       setSubmitted(true);
       setShowPremiumOption(true);
     } catch (error) {
       console.error('[v0] Error saving listing:', error);
-      setSaveError(error instanceof Error ? error.message : 'Failed to create listing. Please try again.');
+      setSaveError('Failed to create listing. Please try again.');
     } finally {
       setIsSaving(false);
     }
@@ -340,38 +334,6 @@ export default function CreateListingPage() {
               />
             </div>
 
-            {/* OpenPay Wallet Address */}
-            <div className="space-y-2">
-              <label htmlFor="openPayWallet" className="block text-sm font-medium">
-                {t('form.openPayWallet')}
-              </label>
-              <input
-                id="openPayWallet"
-                name="openPayWallet"
-                type="text"
-                placeholder={t('form.openPayWallet.placeholder')}
-                value={formData.openPayWallet}
-                onChange={handleChange}
-                className="w-full px-4 py-2 rounded-lg border border-border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50"
-              />
-            </div>
-
-            {/* Pi Network Wallet Address */}
-            <div className="space-y-2">
-              <label htmlFor="piNetworkWallet" className="block text-sm font-medium">
-                {t('form.piNetworkWallet')}
-              </label>
-              <input
-                id="piNetworkWallet"
-                name="piNetworkWallet"
-                type="text"
-                placeholder={t('form.piNetworkWallet.placeholder')}
-                value={formData.piNetworkWallet}
-                onChange={handleChange}
-                className="w-full px-4 py-2 rounded-lg border border-border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50"
-              />
-            </div>
-
             {/* WhatsApp Number */}
             <div className="space-y-2">
               <label htmlFor="whatsapp" className="block text-sm font-medium">
@@ -471,10 +433,10 @@ export default function CreateListingPage() {
             <div className="flex gap-3 pt-4">
               <button
                 type="submit"
-                disabled={isSaving || isWaitingForSdk}
+                disabled={isSaving}
                 className="flex-1 px-6 py-3 bg-primary text-primary-foreground rounded-lg font-semibold hover:opacity-90 transition disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {isWaitingForSdk ? t('common.loading') : isSaving ? t('common.loading') : submitted ? t('form.success') : t('form.submit')}
+                {isSaving ? t('common.loading') : submitted ? t('form.success') : t('form.submit')}
               </button>
               <Link
                 href="/browse"
@@ -512,10 +474,13 @@ export default function CreateListingPage() {
           )}
         </div>
       </section>
-<footer className="border-t border-border py-8 px-4 mt-12">
-  <div className="max-w-6xl mx-auto text-center text-sm text-muted-foreground">
-   <footer className="border-t border-border py-8 px-4 mt-12">
-  <div className="max-w-6xl mx-auto text-center text-sm text-muted-foreground">
-    <p>© 2024 Tunisia Pi Market. Built for the Pi Network community.</p>
-  </div>
-</footer>
+
+      {/* Footer */}
+      <footer className="border-t border-border py-8 px-4 mt-12">
+        <div className="max-w-6xl mx-auto text-center text-sm text-muted-foreground">
+          <p>© 2024 Tunisia Pi Market. Built for the Pi Network community.</p>
+        </div>
+      </footer>
+    </main>
+  );
+}

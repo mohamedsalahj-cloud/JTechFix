@@ -1,11 +1,10 @@
 'use client';
 
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import { useLanguage } from '@/contexts/language-context';
 import { usePiAuth } from '@/contexts/pi-auth-context';
-import { getListings, initializeListingsCache } from '@/lib/listings-storage';
+import { getListings } from '@/lib/listings-storage';
 import type { Language } from '@/lib/translations';
 import type { Listing } from '@/lib/listings-storage';
 
@@ -26,10 +25,10 @@ const PROMOTIONAL_BANNERS = [
   },
   {
     id: 3,
-    title: 'مشروعنا على بلوكشين Pi',
-    subtitle: 'منصة آمنة وموثوقة تدعم مدفوعات Pi Network اللامركزية بدون وسيط.',
-    gradient: 'from-purple-900 via-purple-700 to-yellow-500',
-    cta: 'استكشف الآن',
+    title: '🕹️ Exclusive Game Deals',
+    subtitle: 'AAA titles at unbeatable prices. Limited time offers on popular games',
+    gradient: 'from-blue-600 via-cyan-500 to-teal-500',
+    cta: 'Shop Games',
   },
   {
     id: 4,
@@ -41,52 +40,59 @@ const PROMOTIONAL_BANNERS = [
 ];
 
 const CATEGORIES = [
-  { id: 'electronics', translationKey: 'categories.electronics', icon: '💻' },
-  { id: 'computers-gaming', translationKey: 'categories.computers-gaming', icon: '🎮' },
-  { id: 'smart-tvs', translationKey: 'categories.smart-tvs', icon: '📺' },
-  { id: 'fashion', translationKey: 'categories.fashion', icon: '👔' },
-  { id: 'home', translationKey: 'categories.home', icon: '🏠' },
-  { id: 'services', translationKey: 'categories.services', icon: '🔧' },
-  { id: 'sports', translationKey: 'categories.sports', icon: '⚽' },
-  { id: 'books', translationKey: 'categories.books', icon: '📚' },
-  { id: 'art', translationKey: 'categories.art', icon: '🎨' },
-  { id: 'other', translationKey: 'categories.other', icon: '✨' },
+  { id: 'cars', name: 'Cars', icon: '🚗' },
+  { id: 'electronics', name: 'Electronics', icon: '💻' },
+  { id: 'gaming', name: 'Gaming', icon: '🎮' },
+  { id: 'homes', name: 'Homes', icon: '🏠' },
+  { id: 'fashion', name: 'Fashion', icon: '👔' },
+  { id: 'furniture', name: 'Furniture', icon: '🪑' },
+  { id: 'services', name: 'Services', icon: '🔧' },
+  { id: 'sports', name: 'Sports', icon: '⚽' },
+  { id: 'books', name: 'Books', icon: '📚' },
+];
+
+const GAMING_SUBCATEGORIES = [
+  { id: 'xbox', name: 'Xbox', icon: '📦' },
+  { id: 'ps4', name: 'PS4', icon: '📦' },
+  { id: 'ps5', name: 'PS5', icon: '📦' },
 ];
 
 
 
-
-
 export default function BrowsePage() {
-  const router = useRouter();
   const { language, setLanguage, t, dir } = useLanguage();
   const { sdk } = usePiAuth();
   const [listings, setListings] = useState<Listing[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [selectedGamingSubcategory, setSelectedGamingSubcategory] = useState<string | null>(null);
   const [currentBannerIndex, setCurrentBannerIndex] = useState(0);
 
-  // Load listings from cache on mount and when SDK changes
+  // Load listings from storage
   useEffect(() => {
     const loadListings = async () => {
       try {
-        // Initialize cache from SDK if available
-        await initializeListingsCache(sdk);
-        
-        // Get listings from cache (instant, no timeout)
+        if (!sdk) {
+          setListings([]);
+          return;
+        }
         const data = await getListings(sdk);
         setListings(Array.isArray(data) ? data : []);
-        console.log('[v0] Loaded', data.length, 'listings from cache');
       } catch (error) {
         console.error('[v0] Error loading listings:', error);
         setListings([]);
-      } finally {
-        setIsLoading(false);
       }
     };
 
+    // Set initial state to not loading after a short delay to ensure UI renders
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 500);
+
     loadListings();
+
+    return () => clearTimeout(timer);
   }, [sdk]);
 
   // Auto-rotate banners every 5 seconds
@@ -226,59 +232,91 @@ export default function BrowsePage() {
       </section>
 
       {/* Search Section */}
-      <section className="bg-secondary/20 border-b border-border">
-        <div className="max-w-6xl mx-auto px-4 py-8">
+      <section className="bg-secondary/50 border-b border-border">
+        <div className="max-w-6xl mx-auto px-4 py-6">
           <input
             type="text"
             placeholder={t('browse.filterByCategory') || 'Search listings...'}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full px-5 py-3 rounded-xl border border-border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all shadow-sm"
+            className="w-full px-4 py-2 rounded-lg border border-border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50"
           />
         </div>
       </section>
 
       {/* Categories */}
-      <section className="border-b border-border bg-background">
-        <div className="max-w-6xl mx-auto px-4 py-8">
-          <h2 className="text-xl font-bold mb-6">{t('categories.title')}</h2>
-          <div className="flex gap-3 overflow-x-auto pb-2 -mx-4 px-4">
+      <section className="border-b border-border">
+        <div className="max-w-6xl mx-auto px-4 py-6">
+          <h2 className="text-lg font-semibold mb-4">Categories</h2>
+          <div className="flex gap-2 overflow-x-auto pb-2 -mx-4 px-4">
             <button
               onClick={() => setSelectedCategory(null)}
-              className={`px-5 py-2.5 rounded-full font-bold whitespace-nowrap transition-all flex-shrink-0 shadow-sm ${
+              className={`px-4 py-2 rounded-full font-medium whitespace-nowrap transition flex-shrink-0 ${
                 selectedCategory === null
-                  ? 'bg-primary text-primary-foreground shadow-md'
-                  : 'bg-background text-foreground border border-border hover:border-primary hover:shadow-md'
+                  ? 'bg-primary text-primary-foreground'
+                  : 'bg-secondary text-foreground hover:bg-border'
               }`}
             >
-              {t('browse.allCategories')}
+              All
             </button>
             {CATEGORIES.map((cat) => (
               <button
                 key={cat.id}
                 onClick={() => setSelectedCategory(cat.id)}
-                className={`px-5 py-2.5 rounded-full font-bold whitespace-nowrap transition-all flex-shrink-0 shadow-sm ${
+                className={`px-4 py-2 rounded-full font-medium whitespace-nowrap transition flex-shrink-0 ${
                   selectedCategory === cat.id
-                    ? 'bg-primary text-primary-foreground shadow-md'
-                    : 'bg-background text-foreground border border-border hover:border-primary hover:shadow-md'
+                    ? 'bg-primary text-primary-foreground'
+                    : 'bg-secondary text-foreground hover:bg-border'
                 }`}
               >
-                {cat.icon} {t(cat.translationKey)}
+                {cat.icon} {cat.name}
               </button>
             ))}
           </div>
         </div>
       </section>
 
-
+      {/* Gaming Subcategories */}
+      {selectedCategory === 'gaming' && (
+        <section className="bg-secondary/50 border-b border-border">
+          <div className="max-w-6xl mx-auto px-4 py-4">
+            <h3 className="text-sm font-semibold mb-3 text-muted-foreground">Gaming Platforms</h3>
+            <div className="flex gap-2 overflow-x-auto pb-2 -mx-4 px-4">
+              <button
+                onClick={() => setSelectedGamingSubcategory(null)}
+                className={`px-4 py-2 rounded-full font-medium whitespace-nowrap transition flex-shrink-0 text-sm ${
+                  selectedGamingSubcategory === null
+                    ? 'bg-primary text-primary-foreground'
+                    : 'bg-background text-foreground hover:bg-border'
+                }`}
+              >
+                All Games
+              </button>
+              {GAMING_SUBCATEGORIES.map((subcat) => (
+                <button
+                  key={subcat.id}
+                  onClick={() => setSelectedGamingSubcategory(subcat.id)}
+                  className={`px-4 py-2 rounded-full font-medium whitespace-nowrap transition flex-shrink-0 text-sm ${
+                    selectedGamingSubcategory === subcat.id
+                      ? 'bg-primary text-primary-foreground'
+                      : 'bg-background text-foreground hover:bg-border'
+                  }`}
+                >
+                  {subcat.name}
+                </button>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Listings */}
       <section className="py-12 px-4 flex-1">
         <div className="max-w-6xl mx-auto h-full">
           <h2 className="text-2xl font-bold mb-8">
             {selectedCategory
-              ? t(CATEGORIES.find((c) => c.id === selectedCategory)?.translationKey || 'browse.title')
-              : t('browse.title')}
+              ? CATEGORIES.find((c) => c.id === selectedCategory)?.name
+              : 'Featured Listings'}
           </h2>
           
           {isLoading ? (
@@ -338,10 +376,7 @@ export default function BrowsePage() {
 
                   <div className="flex items-center justify-between pt-2 border-t border-border">
                     <span className="text-xl font-bold text-primary">{listing.price} π</span>
-                    <button 
-                      onClick={() => router.push(`/listing/${listing.id}`)}
-                      className="px-4 py-2 bg-primary text-primary-foreground rounded-lg font-medium hover:opacity-90 transition"
-                    >
+                    <button className="px-4 py-2 bg-primary text-primary-foreground rounded-lg font-medium hover:opacity-90 transition">
                       View
                     </button>
                   </div>

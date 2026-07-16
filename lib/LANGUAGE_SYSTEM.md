@@ -42,7 +42,7 @@ Tunisia Pi Market implements a comprehensive multi-language system supporting Ar
 
 ### Basic Translation
 
-\`\`\`tsx
+```tsx
 import { useLanguage } from '@/contexts/language-context';
 
 export function MyComponent() {
@@ -55,13 +55,13 @@ export function MyComponent() {
     </div>
   );
 }
-\`\`\`
+```
 
 ### Adding New Translations
 
 1. **Add to translations.ts:**
 
-\`\`\`tsx
+```tsx
 export const translations: Record<Language, Record<string, string>> = {
   en: {
     // ... existing translations
@@ -76,13 +76,13 @@ export const translations: Record<Language, Record<string, string>> = {
     'my.feature': 'Ma Fonctionnalité',
   },
 };
-\`\`\`
+```
 
 2. **Use in component:**
 
-\`\`\`tsx
+```tsx
 <h2>{t('my.feature')}</h2>
-\`\`\`
+```
 
 ## Language Selection
 
@@ -94,7 +94,7 @@ Present in all main pages:
 - Create Listing page
 - Dashboard
 
-\`\`\`tsx
+```tsx
 <select
   value={language}
   onChange={(e) => setLanguage(e.target.value as Language)}
@@ -104,7 +104,7 @@ Present in all main pages:
   <option value="ar">العربية</option>
   <option value="fr">Français</option>
 </select>
-\`\`\`
+```
 
 ## RTL/LTR Features
 
@@ -112,21 +112,21 @@ Present in all main pages:
 
 The `dir` attribute is automatically applied to all main containers:
 
-\`\`\`tsx
+```tsx
 <main className="min-h-screen bg-background" dir={dir}>
   {/* Content automatically adapts to RTL/LTR */}
 </main>
-\`\`\`
+```
 
 ### Direction-Aware Icons
 
 Navigation arrows automatically flip for RTL:
 
-\`\`\`tsx
+```tsx
 <Link href="/">
   {dir === 'rtl' ? '→' : '←'} {t('form.cancel')}
 </Link>
-\`\`\`
+```
 
 ### CSS Support
 

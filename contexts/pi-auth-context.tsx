@@ -125,8 +125,6 @@ interface PiAuthContextType {
   products: Product[] | null;
   restoredPurchases: UserPurchaseBalance[] | null;
   reinitialize: () => Promise<void>;
-  isSdkReady: boolean;
-  waitForSdk: () => Promise<SDKLiteInstance>;
 }
 
 const PiAuthContext = createContext<PiAuthContextType | undefined>(undefined);
@@ -198,8 +196,6 @@ export function PiAuthProvider({ children }: { children: ReactNode }) {
   const [restoredPurchases, setRestoredPurchases] = useState<
     UserPurchaseBalance[] | null
   >(null);
-  const [isSdkReady, setIsSdkReady] = useState(false);
-  const [sdkInitPromise, setSdkInitPromise] = useState<Promise<SDKLiteInstance> | null>(null);
 
   const fetchProducts = async (sdkInstance: SDKLiteInstance): Promise<void> => {
     try {
@@ -211,7 +207,7 @@ export function PiAuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const initialize = async (retryCount = 0, maxRetries = 3) => {
+  const initialize = async () => {
     setHasError(false);
     setRestoredPurchases(null);
     try {
@@ -221,7 +217,6 @@ export function PiAuthProvider({ children }: { children: ReactNode }) {
       const parentCredentials = await requestParentCredentials();
       if (parentCredentials) {
         setIsAuthenticated(true);
-        setIsSdkReady(true);
         return;
       }
 
@@ -236,9 +231,7 @@ export function PiAuthProvider({ children }: { children: ReactNode }) {
       await loadSDKLite();
 
       setAuthMessage("Initializing SDKLite...");
-      const sdkLite = await window.SDKLite.init({
-        recipientAddress: PI_NETWORK_CONFIG.RECIPIENT_ADDRESS,
-      });
+      const sdkLite = await window.SDKLite.init();
 
       // Auth + user-state are served by the @pi-sdk npm packages; SDKLite still backs
       // payments, ads, products and restore until those packages ship. The adapter keeps
@@ -254,69 +247,25 @@ export function PiAuthProvider({ children }: { children: ReactNode }) {
       const sdkInstance = createSdk(sdkLite, pi);
       setSdk(sdkInstance);
       setIsAuthenticated(true);
-      setIsSdkReady(true);
       await fetchProducts(sdkInstance);
 
       try {
         const { purchases } = await sdkInstance.state.restore();
         setRestoredPurchases(purchases);
-        console.log("[v0] Purchases restored", purchases);
+        console.log("[PiAuth] Purchases restored", purchases);
       } catch (e) {
-        console.error("[v0] Failed to restore purchases:", e);
+        console.error("[PiAuth] Failed to restore purchases:", e);
         setRestoredPurchases([]);
       }
     } catch (err) {
-      console.error("[v0] SDK initialization failed (attempt", retryCount + 1, "of", maxRetries + 1, "):", err);
-      
-      // Retry logic: if initialization failed and we haven't exceeded max retries
-      if (retryCount < maxRetries) {
-        const delay = Math.pow(2, retryCount) * 1000; // Exponential backoff: 1s, 2s, 4s
-        console.log(`[v0] Retrying SDK initialization in ${delay}ms...`);
-        setTimeout(() => {
-          initialize(retryCount + 1, maxRetries);
-        }, delay);
-        return;
-      }
-
-      // Max retries exceeded
+      console.error("SDKLite initialization failed:", err);
       setHasError(true);
-      setIsSdkReady(false);
       setAuthMessage(
         err instanceof Error
           ? err.message
           : "Authentication failed. Please try again.",
       );
     }
-  };
-
-  const waitForSdk = async (): Promise<SDKLiteInstance> => {
-    // If SDK is already ready, return it
-    if (sdk) {
-      return sdk;
-    }
-
-    // If initialization is in progress, wait for it
-    if (sdkInitPromise) {
-      return sdkInitPromise;
-    }
-
-    // Otherwise, wait up to 30 seconds for SDK to be initialized
-    return new Promise((resolve, reject) => {
-      let attempts = 0;
-      const maxAttempts = 60; // 30 seconds with 500ms intervals
-      
-      const checkSdk = setInterval(() => {
-        attempts++;
-        
-        if (sdk) {
-          clearInterval(checkSdk);
-          resolve(sdk);
-        } else if (hasError || attempts >= maxAttempts) {
-          clearInterval(checkSdk);
-          reject(new Error("SDK initialization failed or timeout"));
-        }
-      }, 500);
-    });
   };
 
   useEffect(() => {
@@ -331,8 +280,6 @@ export function PiAuthProvider({ children }: { children: ReactNode }) {
     products,
     restoredPurchases,
     reinitialize: initialize,
-    isSdkReady,
-    waitForSdk,
   };
 
   return (
